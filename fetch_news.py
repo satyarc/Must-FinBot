@@ -24,6 +24,7 @@ def uprint(*objects, sep=' ', end='\n', file=sys.stdout):
         f = lambda obj: str(obj).encode(enc, errors='backslashreplace').decode(enc)
         print(*map(f, objects), sep=sep, end=end, file=file)
         
+        
 def fetchNewsRelatedTo(symbol):
     headers = {}
     headers['User-Agent'] = USER_AGENT_SATYA
@@ -33,7 +34,7 @@ def fetchNewsRelatedTo(symbol):
     respData = resp.read()
     urls = re.findall(VALID_URL, str(respData))
     contextUrls = list(filter(lambda url:symbol in url, urls))
-    newsAlerturls = list(filter(lambda url:'news' in url or 'alert' in url or 'market' in url, contextUrls))
+    newsAlerturls = list(filter(lambda url:'news'  or 'alert'  or 'market' or 'money' in url, contextUrls))
     return newsAlerturls
 
 def fetchNewsContent(symbol):
@@ -42,15 +43,24 @@ def fetchNewsContent(symbol):
     for newsurl in newsUrls :
         page = requests.get(newsurl)
         soup = BeautifulSoup(page.content, 'html.parser')
+        for script in soup(["script", "style"]):
+            script.extract()
         newsitems = soup.find_all('p')
         for newsitem in newsitems:
-            newsItemTexts.append(newsitem.get_text()) 
-    return newsItemTexts
+            newsItemInText = newsitem.get_text()
+            terms= newsItemInText.split(' ')
+            for term in terms:
+                if term in selectedTerms:
+                    newsItemTexts.append(newsitem.get_text()) 
+    return set(newsItemTexts)
     
-symbols = ['indiabulls','koltepatil']   
+symbols = ['indiabulls','koltepatil','infosys','tcs']   
+selectedTerms = {'bullish','bearish','estate','buy','call','sell','correction','Shares','finance'}
 
 for symbol in symbols:
     uprint('symbol:' + symbol)
     newsitems = fetchNewsContent(symbol)
     for newsitem in newsitems:
-        uprint(newsitem)
+        with open('newsextract', 'a') as out:
+            uprint(newsitem, file=out)
+

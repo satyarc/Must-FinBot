@@ -9,12 +9,10 @@ import re
 import json
 import requests
 import sys
+import collections
 
-from bs4 import BeautifulSoup
-
-USER_AGENT_SATYA = 'Mozilla/5.0 (Windows NT 6.2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36'
-VALID_URL = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
-SOURCE = 'https://www.google.com/search?hl=en&gl=in&tbm=nws&authuser=0&q='
+from newsapi.commands import Sources, headlines
+from newsapi.commands import Headlines
 
 def uprint(*objects, sep=' ', end='\n', file=sys.stdout):
     enc = file.encoding
@@ -25,42 +23,35 @@ def uprint(*objects, sep=' ', end='\n', file=sys.stdout):
         print(*map(f, objects), sep=sep, end=end, file=file)
         
         
-def fetchNewsRelatedTo(symbol):
-    headers = {}
-    headers['User-Agent'] = USER_AGENT_SATYA
-    url = SOURCE + symbol
-    req = urllib.request.Request(url,headers=headers)
-    resp = urllib.request.urlopen(req)
-    respData = resp.read()
-    urls = re.findall(VALID_URL, str(respData))
-    contextUrls = list(filter(lambda url:symbol in url, urls))
-    newsAlerturls = list(filter(lambda url:'news'  or 'alert'  or 'market' or 'money' in url, contextUrls))
-    return newsAlerturls
+def fetchNewsFrom(newsSource):
+    apiKey = 'a892420deb3f46dea3c5f5c0b9863bf3'
+    url = "https://newsapi.org/v1/articles?apiKey=" + apiKey + "&source=" + newsSource
+    response = requests.get(url)
+    data = response.json()
+    textFromAllArticles = ""
+    if data["status"] != "error":
+        articles = data["articles"]
+        for article in articles:
+            if article["description"] is not None:
+                with open('newsextract', 'a') as out:
+                    uprint(article["title"], file=out)
+                    description = article["description"]
+                    textFromAllArticles += description
+                    uprint(description, file=out)
+                    uprint(article["url"], file=out)
+    else:
+        uprint("Invalid news source.")
+        
+    return textFromAllArticles
 
-def fetchNewsContent(symbol):
-    newsUrls = fetchNewsRelatedTo(symbol)
-    newsItemTexts = []
-    for newsurl in newsUrls :
-        page = requests.get(newsurl)
-        soup = BeautifulSoup(page.content, 'html.parser')
-        for script in soup(["script", "style"]):
-            script.extract()
-        newsitems = soup.find_all('p')
-        for newsitem in newsitems:
-            newsItemInText = newsitem.get_text()
-            terms= newsItemInText.split(' ')
-            for term in terms:
-                if term in selectedTerms:
-                    newsItemTexts.append(newsitem.get_text()) 
-    return set(newsItemTexts)
-    
-symbols = ['indiabulls','koltepatil','infosys','tcs']   
-selectedTerms = {'bullish','bearish','estate','buy','call','sell','correction','Shares','finance'}
+sources = ['financial-times','busines-insider-uk','techcrunch','business-insider','google-news','the-times-of-india','usa-today'] 
+textFromAllSources = "" 
+for source in sources:      
+    textFromAllSources += fetchNewsFrom(source)
 
-for symbol in symbols:
-    uprint('symbol:' + symbol)
-    newsitems = fetchNewsContent(symbol)
-    for newsitem in newsitems:
-        with open('newsextract', 'a') as out:
-            uprint(newsitem, file=out)
+commonBagOfWords =  collections.Counter(re.findall(r'\w+', textFromAllSources))
+mostCommonWords = commonBagOfWords.most_common(50)
 
+with open('bags', 'a') as bagout:
+    for word in mostCommonWords:
+        uprint('word :' + str(word[0]) + ' count :' + str(word[1]),file=bagout)        

@@ -44,28 +44,7 @@ def fetchNewsFrom(newsSource):
         print("Invalid news source.")
         
     return textFromAllArticles
-
-def markScore(textFromSource):
-    g_score = 0
-    b_score = 0
-    totalWords = 0
-    
-    words = word_tokenize(textFromSource)
-    for word in words:
-        totalWords += 1
-        if word in set(synonyms):
-            g_score += 1
-        else:
-            if word in set(antonyms):
-                b_score -= 1    
-        xar.append(totalWords)   
-        yar.append(g_score + b_score) 
-         
-    print(totalWords)
-    print(g_score) 
-    print(b_score)           
-    print(g_score + b_score) 
-    
+  
 def fetchNewsFromSources():
     url = "https://newsapi.org/v1/sources?language=en&category=business"
     response = requests.get(url)

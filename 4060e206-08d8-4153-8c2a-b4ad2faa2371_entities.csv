@@ -1,0 +1,14 @@
+all,latest,current,,
+all,some,,,
+all,all,anything,any,
+market_move,bearish,down,downward,bear
+market_move,bullish,up,upward,bull
+sentiment,market pulse,,,
+sentiment,market sentiment,,,
+sentiment,press saying about market,,,
+sentiment,press feel about the market,,,
+symbol,stock,shares,share,stocks
+symbol,HDFC,,,
+symbol,DLF,,,
+symbol,TCS,,,
+symbol,kolte,,,

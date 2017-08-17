@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml>
+
+<!-- File: update.aiml -->
+<!-- Author: Dr. Richard S. Wallace -->
+<!-- Last modified: August 10, 2013 -->
+<!--  -->
+<!-- This AIML file is part of the ALICE2 0.0.5 chat bot knowledge base. -->
+<!--  -->
+<!-- The ALICE2 brain is Copyright &copy; 2013 by ALICE AI Foundation. -->
+<!--  -->
+<!-- The ALICE2 brain is released under the terms of the GNU Lesser General -->
+<!-- Public License, as published by the Free Software Foundation. -->
+<!--  -->
+<!-- This file is distributed WITHOUT ANY WARRANTY; without even the  -->
+<!-- implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.   -->
+<!--  -->
+<!-- For more information see http://www.alicebot.org -->
+<!--  -->
+
+<category>
+<pattern>*</pattern>
+<template>I have no answer for that.</template>
+</category>
+
+<category>
+<pattern>Hi</pattern>
+<template>Hello</template>
+</category>
+
+<category>
+<pattern>I am *</pattern>
+<template>Hello <star index = "1"/></template>
+</category>
+
+<category>
+    <pattern>quote *</pattern>
+    <template>Getting the stock price of  <star/>
+        <set name = "topic">stockQuote</set>    
+    </template>
+</category>
+
+<category>
+    <pattern>What is the stock price of *</pattern>
+    <template>
+        <srai>quote <star/></srai>
+    </template>  
+</category>
+
+    <topic name = "stockQuote">
+        <category>
+           <pattern> * </pattern>
+           <template>
+             <srai> quote <star/></srai>
+           </template>
+        </category>
+        
+        <category>
+           <pattern>Get me the price of *</pattern>
+           <template>
+              <srai>quote <star/></srai>
+           </template>
+        </category>
+    
+        <category>
+           <pattern>Quote me *</pattern>
+           <template>
+              <srai>quote <star/></srai>
+           </template>
+        </category>
+    
+        <category>
+           <pattern>Can you quote *</pattern>
+           <template>
+              <srai>quote <star/></srai>
+           </template>
+        </category>
+    
+        <category>
+           <pattern>Can you please quote *</pattern>
+           <template>
+              <srai>quote <star/></srai>
+           </template>
+        </category>
+    </topic>
+</aiml>

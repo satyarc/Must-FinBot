@@ -15,6 +15,7 @@
 import os
 from flask import Flask, jsonify
 import requests
+import nsepy as nsp
 
 synonyms = ['bullish','up','demand','interest','invest','enter','hold']
 antonyms = ['bearish','down','supply','take out', 'exit','sell']
@@ -101,6 +102,14 @@ def GetPeople():
 def GetSentiment():
     sentiments = fetchNewsFromSources()
     return jsonify(results=sentiments)
+
+@app.route('/api/stockquote/<symbol>')
+def StockQuote(symbol):
+	data = nsp.get_history(symbol = trade_name, start = date.today(),end = date.today())
+    quote = {
+        'quote':  data.Close
+    }
+    return jsonify(results=quote)
 
 @app.route('/api/people/<name>')
 def SayHello(name):
